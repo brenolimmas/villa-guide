@@ -1,3 +1,5 @@
+'use client';
+
 import type { Service } from '@/types/property';
 
 interface Props {
