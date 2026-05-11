@@ -15,7 +15,7 @@ export function FaqAccordion({ faqs }: Props) {
   return (
     <div className="faq-list" id="js-faq-list">
       {faqs.map(faq => (
-        <div key={faq.id} className="faq-item">
+        <div key={faq.id} className={`faq-item${open === faq.id ? ' faq-item--open' : ''}`}>
           <button
             className="faq-item__trigger"
             aria-expanded={open === faq.id}
@@ -35,7 +35,7 @@ export function FaqAccordion({ faqs }: Props) {
               </svg>
             </span>
           </button>
-          <div className="faq-item__body" style={{ display: open === faq.id ? '' : 'none' }}>
+          <div className="faq-item__body">
             <div className="faq-item__inner">
               <div className="faq-item__answer">
                 {faq.faq_steps.map((step, i) => (

@@ -9,32 +9,58 @@ interface Props {
   lon?: number;
 }
 
-interface Weather {
-  temp: number;
-  isDay: boolean;
+interface DaysInfo {
+  display: string;
+  label: string;
 }
 
 export function StayStatus({ checkinDate, checkoutDate, lat, lon }: Props) {
-  const [daysLeft, setDaysLeft] = useState<number | null>(null);
-  const [weather, setWeather] = useState<Weather | null>(null);
-  const [wifiOpen, setWifiOpen] = useState(false);
+  const [daysInfo, setDaysInfo] = useState<DaysInfo | null>(null);
+  const [temp, setTemp] = useState<number | null>(null);
+  const [weatherLabel, setWeatherLabel] = useState('Agora');
+
+  const hour = new Date().getHours();
+  const isNight = hour >= 18 || hour < 6;
 
   useEffect(() => {
-    if (checkoutDate) {
-      const out = new Date(checkoutDate + 'T12:00:00');
-      const now = new Date();
-      const diff = Math.ceil((out.getTime() - now.getTime()) / 86400000);
-      setDaysLeft(diff > 0 ? diff : 0);
+    if (!checkinDate || !checkoutDate) return;
+    const checkin = new Date(checkinDate + 'T00:00:00');
+    const checkout = new Date(checkoutDate + 'T00:00:00');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    checkin.setHours(0, 0, 0, 0);
+    checkout.setHours(0, 0, 0, 0);
+    const totalNights = Math.round((checkout.getTime() - checkin.getTime()) / 86400000);
+    const daysRemaining = Math.round((checkout.getTime() - today.getTime()) / 86400000);
+    const display = daysRemaining > totalNights ? totalNights : daysRemaining;
+
+    if (display < 0) {
+      setDaysInfo({ display: 'Encerrada', label: 'Estadia' });
+    } else if (display === 0) {
+      setDaysInfo({ display: 'Hoje', label: 'Checkout' });
+    } else {
+      const label = daysRemaining > totalNights ? 'Diárias' : 'Restantes';
+      setDaysInfo({ display: `${display} ${display === 1 ? 'dia' : 'dias'}`, label });
     }
-  }, [checkoutDate]);
+  }, [checkinDate, checkoutDate]);
 
   useEffect(() => {
     if (!lat || !lon) return;
-    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
+    fetch(
+      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weathercode&timezone=America%2FSao_Paulo`
+    )
       .then(r => r.json())
       .then(d => {
-        if (d.current_weather) {
-          setWeather({ temp: Math.round(d.current_weather.temperature), isDay: d.current_weather.is_day === 1 });
+        if (d.current) {
+          setTemp(Math.round(d.current.temperature_2m));
+          const code = d.current.weathercode;
+          setWeatherLabel(
+            code === 0  ? 'Céu limpo'    :
+            code <= 3   ? 'Parcialmente' :
+            code <= 48  ? 'Neblina'      :
+            code <= 67  ? 'Chuva'        :
+            code <= 82  ? 'Pancadas'     : 'Agora'
+          );
         }
       })
       .catch(() => {});
@@ -47,20 +73,24 @@ export function StayStatus({ checkinDate, checkoutDate, lat, lon }: Props) {
   return (
     <div className="stay-status" aria-label="Status da estadia">
       <div className="status-card">
-        <span className="status-card__icon status-card__icon--gold" id="js-clima-icon" aria-hidden="true">
-          {weather?.isDay ? (
+        <span
+          className={`status-card__icon ${isNight ? 'status-card__icon--night' : 'status-card__icon--gold'}`}
+          id="js-clima-icon"
+          aria-hidden="true"
+        >
+          {isNight ? (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+          ) : (
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="4"/>
               <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
             </svg>
-          ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-            </svg>
           )}
         </span>
-        <span className="status-card__value">{weather ? `${weather.temp}°C` : '—'}</span>
-        <span className="status-card__label">Agora</span>
+        <span className="status-card__value" data-clima>{temp != null ? `${temp}°C` : '—'}</span>
+        <span className="status-card__label" data-clima>{weatherLabel}</span>
       </div>
 
       <div className="status-card">
@@ -71,8 +101,8 @@ export function StayStatus({ checkinDate, checkoutDate, lat, lon }: Props) {
             <line x1="3" y1="10" x2="21" y2="10"/>
           </svg>
         </span>
-        <span className="status-card__value" id="js-days-val">{daysLeft ?? '—'}</span>
-        <span className="status-card__label" id="js-days-label">Restantes</span>
+        <span className="status-card__value" id="js-days-val">{daysInfo?.display ?? '—'}</span>
+        <span className="status-card__label" id="js-days-label">{daysInfo?.label ?? 'Restantes'}</span>
       </div>
 
       <button className="status-card status-card--interactive" id="js-wifi-shortcut" aria-label="Ver senha do Wi-Fi" onClick={handleWifiShortcut}>

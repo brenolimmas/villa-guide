@@ -53,10 +53,10 @@ export function CommerceFilter({ commerce }: Props) {
 }
 
 function PlaceCard({ place }: { place: CommercePlace }) {
-  const [hoursOpen, setHoursOpen] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   return (
-    <article className="place-card">
+    <article className={`place-card${expanded ? ' place-card--expanded' : ''}`}>
       {place.image_url && (
         <div className="place-card__img-wrap">
           <img className="place-card__img" src={place.image_url} alt={place.name} loading="lazy" />
@@ -65,8 +65,8 @@ function PlaceCard({ place }: { place: CommercePlace }) {
       <div className="place-card__body">
         <div className="place-card__main">
           <div className="place-card__name">{place.name}</div>
-          <button className="place-card__hours-btn" type="button" onClick={() => setHoursOpen(v => !v)}>
-            {hoursOpen ? 'Fechar horários' : 'Ver horários'}
+          <button className="place-card__hours-btn" type="button" onClick={() => setExpanded(v => !v)}>
+            {expanded ? 'Fechar horários' : 'Ver horários'}
           </button>
         </div>
         {(place.drive_minutes || place.walk_minutes) && (
@@ -92,7 +92,7 @@ function PlaceCard({ place }: { place: CommercePlace }) {
         )}
       </div>
 
-      {hoursOpen && place.commerce_hours.length > 0 && (
+      {place.commerce_hours.length > 0 && (
         <div className="place-card__hours-panel">
           <div className="place-card__hours-inner">
             <ul className="place-card__hours-list">

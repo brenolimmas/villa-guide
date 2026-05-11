@@ -37,13 +37,13 @@ export function TabsController({ children }: Props) {
       if (i === active) {
         panel.classList.add('panel--active');
         panel.removeAttribute('hidden');
-        // retrigger animation
-        const targets = panel.querySelectorAll<HTMLElement>('.panel, .rule-item, .rule-item__icon, .tip, .faq-item, .faq-item__icon, .help-card, .help-card__icon');
-        targets.forEach(el => {
-          el.style.animation = 'none';
-          void el.offsetHeight;
-          el.style.animation = '';
-        });
+        // retrigger animations — matches original script.js order exactly
+        panel.style.animation = 'none';
+        const targets = panel.querySelectorAll<HTMLElement>('.rule-item, .rule-item__icon, .tip, .faq-item, .faq-item__icon, .help-card, .help-card__icon');
+        targets.forEach(el => { el.style.animation = 'none'; });
+        void panel.offsetHeight;
+        panel.style.animation = '';
+        targets.forEach(el => { el.style.animation = ''; });
       } else {
         panel.classList.remove('panel--active');
         panel.setAttribute('hidden', '');
