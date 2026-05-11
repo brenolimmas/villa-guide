@@ -41,11 +41,7 @@ export function StayStatus({ checkinDate, checkoutDate, lat, lon }: Props) {
   }, [lat, lon]);
 
   const handleWifiShortcut = () => {
-    const panel = document.getElementById('js-wifi-panel');
-    if (panel) {
-      panel.classList.add('wifi-panel--visible');
-      panel.setAttribute('aria-hidden', 'false');
-    }
+    window.dispatchEvent(new CustomEvent('wifi-panel-open'));
   };
 
   return (

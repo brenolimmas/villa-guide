@@ -1,4 +1,4 @@
-import type { Property, HouseRule, Faq, VillaSlide, EmergencyContact } from '@/types/property';
+import type { Property, Reservation, HouseRule, Faq, VillaSlide, EmergencyContact } from '@/types/property';
 import { StayStatus } from '@/components/interactive/StayStatus';
 import { RulesToggle } from '@/components/interactive/RulesToggle';
 import { FaqAccordion } from '@/components/interactive/FaqAccordion';
@@ -7,13 +7,14 @@ import { HelpCards } from '@/components/interactive/HelpCards';
 
 interface Props {
   property: Property;
+  reservation: Reservation | null;
   rules: HouseRule[];
   faqs: Faq[];
   villaSlides: VillaSlide[];
   emergencyContacts: EmergencyContact[];
 }
 
-export function RulesSection({ property, rules, faqs, villaSlides, emergencyContacts }: Props) {
+export function RulesSection({ property, reservation, rules, faqs, villaSlides, emergencyContacts }: Props) {
   return (
     <section className="panel panel--active" id="panel-rules" role="tabpanel" aria-labelledby="tab-rules" tabIndex={0}>
       <div className="panel__inner">
@@ -32,8 +33,8 @@ export function RulesSection({ property, rules, faqs, villaSlides, emergencyCont
         </div>
 
         <StayStatus
-          checkinDate={property.checkin_time}
-          checkoutDate={property.checkout_time}
+          checkinDate={reservation?.checkin_date}
+          checkoutDate={reservation?.checkout_date}
           lat={property.lat}
           lon={property.lon}
         />

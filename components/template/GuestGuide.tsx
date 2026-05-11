@@ -24,6 +24,7 @@ export function GuestGuide({ data }: Props) {
         <TabsController>
           <RulesSection
             property={property}
+            reservation={reservation}
             rules={rules}
             faqs={faqs}
             villaSlides={villa_slides}

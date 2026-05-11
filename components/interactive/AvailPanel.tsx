@@ -13,9 +13,9 @@ export function AvailPanel({ whatsapp }: Props) {
 
   useEffect(() => {
     const handleOpen = () => setOpen(true);
-    document.getElementById('js-avail-btn')?.addEventListener('click', handleOpen);
-    return () => document.getElementById('js-avail-btn')?.removeEventListener('click', handleOpen);
-  }, [open]);
+    window.addEventListener('avail-panel-open', handleOpen);
+    return () => window.removeEventListener('avail-panel-open', handleOpen);
+  }, []);
 
   const close = () => setOpen(false);
 
