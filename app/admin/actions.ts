@@ -154,6 +154,92 @@ export async function deleteSlide(formData: FormData) {
   else redirect(`/admin?slug=${slug}&saved=1`);
 }
 
+export async function addFaq(formData: FormData) {
+  const supabase = createAdminClient();
+  const slug = formData.get('slug') as string;
+
+  const { data: faq, error } = await supabase.from('faqs').insert({
+    property_id: formData.get('property_id') as string,
+    question:    formData.get('question') as string,
+    answer:      (formData.get('answer') as string) || null,
+    icon_svg:    (formData.get('icon_svg') as string) || null,
+    media_url:   (formData.get('media_url') as string) || null,
+    media_type:  (formData.get('media_type') as string) || null,
+    sort_order:  Number(formData.get('sort_order') ?? 0),
+  }).select('id').single();
+
+  if (error || !faq) {
+    redirect(`/admin?slug=${slug}&error=${encodeURIComponent(error?.message ?? 'Erro ao salvar')}`);
+  }
+
+  const stepCount = Number(formData.get('step_count') ?? 0);
+  if (stepCount > 0) {
+    const steps = Array.from({ length: stepCount }, (_, i) => {
+      const text = (formData.get(`step_text_${i}`) as string)?.trim();
+      return text ? { faq_id: faq.id, step_text: text, sort_order: i + 1 } : null;
+    }).filter(Boolean);
+    if (steps.length > 0) await supabase.from('faq_steps').insert(steps as never[]);
+  }
+
+  revalidatePath(`/${slug}`);
+  redirect(`/admin?slug=${slug}&saved=1`);
+}
+
+export async function updateFaq(formData: FormData) {
+  const supabase = createAdminClient();
+  const slug  = formData.get('slug') as string;
+  const faqId = formData.get('faq_id') as string;
+
+  const { error } = await supabase.from('faqs').update({
+    question:   formData.get('question') as string,
+    answer:     (formData.get('answer') as string) || null,
+    icon_svg:   (formData.get('icon_svg') as string) || null,
+    media_url:  (formData.get('media_url') as string) || null,
+    media_type: (formData.get('media_type') as string) || null,
+  }).eq('id', faqId);
+
+  if (error) redirect(`/admin?slug=${slug}&error=${encodeURIComponent(error.message)}`);
+
+  await supabase.from('faq_steps').delete().eq('faq_id', faqId);
+
+  const stepCount = Number(formData.get('step_count') ?? 0);
+  if (stepCount > 0) {
+    const steps = Array.from({ length: stepCount }, (_, i) => {
+      const text = (formData.get(`step_text_${i}`) as string)?.trim();
+      return text ? { faq_id: faqId, step_text: text, sort_order: i + 1 } : null;
+    }).filter(Boolean);
+    if (steps.length > 0) await supabase.from('faq_steps').insert(steps as never[]);
+  }
+
+  revalidatePath(`/${slug}`);
+  redirect(`/admin?slug=${slug}&saved=1`);
+}
+
+export async function deleteFaq(formData: FormData) {
+  const supabase = createAdminClient();
+  const slug  = formData.get('slug') as string;
+  const faqId = formData.get('faq_id') as string;
+
+  const { error } = await supabase.from('faqs').delete().eq('id', faqId);
+
+  revalidatePath(`/${slug}`);
+  if (error) redirect(`/admin?slug=${slug}&error=${encodeURIComponent(error.message)}`);
+  else redirect(`/admin?slug=${slug}&saved=1`);
+}
+
+export async function reorderFaqs(
+  orders: { id: string; sort_order: number }[],
+  slug: string,
+) {
+  const supabase = createAdminClient();
+  await Promise.all(
+    orders.map(({ id, sort_order }) =>
+      supabase.from('faqs').update({ sort_order }).eq('id', id)
+    )
+  );
+  revalidatePath(`/${slug}`);
+}
+
 export async function reorderSlides(
   orders: { id: string; sort_order: number }[],
   slug: string,

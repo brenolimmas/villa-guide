@@ -3,6 +3,7 @@ import { saveChanges } from './actions';
 import { LocationSelect } from './LocationSelect';
 import { HouseRulesManager } from './HouseRulesManager';
 import { VillaSlidesManager } from './VillaSlidesManager';
+import { FaqManager } from './FaqManager';
 import { CollapsibleCard } from './CollapsibleCard';
 import './admin.css';
 
@@ -49,6 +50,12 @@ export default async function AdminPage({ searchParams }: PageProps) {
   const { data: slides } = await supabase
     .from('villa_slides')
     .select('*')
+    .eq('property_id', property.id)
+    .order('sort_order');
+
+  const { data: faqs } = await supabase
+    .from('faqs')
+    .select('*, faq_steps(*)')
     .eq('property_id', property.id)
     .order('sort_order');
 
@@ -245,6 +252,11 @@ export default async function AdminPage({ searchParams }: PageProps) {
             slug={slug}
             storyEyebrow={property.villa_story_eyebrow ?? ''}
             storyText={property.villa_story_text ?? ''}
+          />
+          <FaqManager
+            faqs={faqs ?? []}
+            propertyId={property.id}
+            slug={slug}
           />
         </div>
 

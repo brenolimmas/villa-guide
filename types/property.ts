@@ -50,6 +50,9 @@ export interface Faq {
   answer?: string;
   sort_order: number;
   faq_steps: FaqStep[];
+  icon_svg?:   string | null;
+  media_url?:  string | null;
+  media_type?: string | null;
 }
 
 export interface FaqStep {
