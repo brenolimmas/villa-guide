@@ -7,10 +7,13 @@ const AUTOPLAY_MS = 6000;
 
 interface Props {
   slides: VillaSlide[];
+  storyEyebrow?: string | null;
+  storyText?: string | null;
 }
 
-export function VillaCarousel({ slides }: Props) {
+export function VillaCarousel({ slides, storyEyebrow, storyText }: Props) {
   const [current, setCurrent] = useState(0);
+  const [fillKey, setFillKey] = useState(0);
   const currentRef = useRef(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const indicatorEls = useRef<(HTMLButtonElement | null)[]>([]);
@@ -19,14 +22,9 @@ export function VillaCarousel({ slides }: Props) {
 
   const goTo = useCallback((idx: number) => {
     const next = ((idx % slides.length) + slides.length) % slides.length;
-    const prevFill = indicatorEls.current[currentRef.current]?.querySelector<HTMLElement>('.villa-indicator__fill');
-    if (prevFill) {
-      prevFill.style.animation = 'none';
-      void prevFill.offsetHeight;
-      prevFill.style.animation = '';
-    }
     currentRef.current = next;
     setCurrent(next);
+    setFillKey(k => k + 1);
   }, [slides.length]);
 
   const startTimer = useCallback(() => {
@@ -91,7 +89,7 @@ export function VillaCarousel({ slides }: Props) {
               type="button"
               onClick={() => { goTo(i); startTimer(); }}
             >
-              <div className="villa-indicator__fill" />
+              <div className="villa-indicator__fill" key={i === current ? `a${fillKey}` : `b${i}`} />
             </button>
           ))}
         </div>
@@ -99,8 +97,8 @@ export function VillaCarousel({ slides }: Props) {
 
       <div className="villa-story">
         <div className="villa-story__accent" aria-hidden="true" />
-        <p className="villa-story__eyebrow">Um espaço pensado para receber momentos especiais.</p>
-        <p className="villa-story__text">Desde 2024, a Villa Mariz nasceu do sonho de uma família apaixonada por acolher bem. Cada detalhe do espaço foi pensado para proporcionar conforto, qualidade e tranquilidade aos nossos hóspedes.</p>
+        {storyEyebrow && <p className="villa-story__eyebrow">{storyEyebrow}</p>}
+        {storyText && <p className="villa-story__text">{storyText}</p>}
       </div>
     </div>
   );

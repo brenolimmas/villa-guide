@@ -21,6 +21,10 @@ export interface Property {
   whatsapp?: string;
   lat?: number;
   lon?: number;
+  google_review_url?: string;
+  instagram_url?: string;
+  villa_story_eyebrow?: string | null;
+  villa_story_text?: string | null;
 }
 
 export interface Reservation {

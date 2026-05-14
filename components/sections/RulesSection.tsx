@@ -4,6 +4,7 @@ import { RulesToggle } from '@/components/interactive/RulesToggle';
 import { FaqAccordion } from '@/components/interactive/FaqAccordion';
 import { VillaCarousel } from '@/components/interactive/VillaCarousel';
 import { HelpCards } from '@/components/interactive/HelpCards';
+import { FarewellSection } from '@/components/sections/FarewellSection';
 
 interface Props {
   property: Property;
@@ -67,7 +68,11 @@ export function RulesSection({ property, reservation, rules, faqs, villaSlides, 
               <div className="panel__hero-desc">Momentos que tornam este lugar especial</div>
             </div>
           </div>
-          <VillaCarousel slides={villaSlides} />
+          <VillaCarousel
+            slides={villaSlides}
+            storyEyebrow={property.villa_story_eyebrow}
+            storyText={property.villa_story_text}
+          />
         </div>
 
         <div className="rules-section-header">
@@ -108,6 +113,11 @@ export function RulesSection({ property, reservation, rules, faqs, villaSlides, 
           </div>
           <p className="tip__text">Dúvidas? Estamos aqui para ajudar a tornar sua estadia ainda mais especial.</p>
         </div>
+
+        <FarewellSection
+          googleReviewUrl={property.google_review_url}
+          instagramUrl={property.instagram_url}
+        />
 
       </div>
     </section>

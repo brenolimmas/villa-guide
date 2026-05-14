@@ -108,3 +108,75 @@ export async function deleteRule(formData: FormData) {
   if (error) redirect(`/admin?slug=${slug}&error=${encodeURIComponent(error.message)}`);
   else redirect(`/admin?slug=${slug}&saved=1`);
 }
+
+export async function addSlide(formData: FormData) {
+  const supabase = createAdminClient();
+  const slug = formData.get('slug') as string;
+
+  const { error } = await supabase.from('villa_slides').insert({
+    property_id:   formData.get('property_id') as string,
+    image_url:     formData.get('image_url') as string,
+    caption_title: (formData.get('caption_title') as string) || null,
+    caption_desc:  (formData.get('caption_desc') as string) || null,
+    sort_order:    Number(formData.get('sort_order') ?? 0),
+  });
+
+  revalidatePath(`/${slug}`);
+  if (error) redirect(`/admin?slug=${slug}&error=${encodeURIComponent(error.message)}`);
+  else redirect(`/admin?slug=${slug}&saved=1`);
+}
+
+export async function updateSlide(formData: FormData) {
+  const supabase = createAdminClient();
+  const slug    = formData.get('slug') as string;
+  const slideId = formData.get('slide_id') as string;
+
+  const { error } = await supabase.from('villa_slides').update({
+    image_url:     formData.get('image_url') as string,
+    caption_title: (formData.get('caption_title') as string) || null,
+    caption_desc:  (formData.get('caption_desc') as string) || null,
+  }).eq('id', slideId);
+
+  revalidatePath(`/${slug}`);
+  if (error) redirect(`/admin?slug=${slug}&error=${encodeURIComponent(error.message)}`);
+  else redirect(`/admin?slug=${slug}&saved=1`);
+}
+
+export async function deleteSlide(formData: FormData) {
+  const supabase = createAdminClient();
+  const slug    = formData.get('slug') as string;
+  const slideId = formData.get('slide_id') as string;
+
+  const { error } = await supabase.from('villa_slides').delete().eq('id', slideId);
+
+  revalidatePath(`/${slug}`);
+  if (error) redirect(`/admin?slug=${slug}&error=${encodeURIComponent(error.message)}`);
+  else redirect(`/admin?slug=${slug}&saved=1`);
+}
+
+export async function reorderSlides(
+  orders: { id: string; sort_order: number }[],
+  slug: string,
+) {
+  const supabase = createAdminClient();
+  await Promise.all(
+    orders.map(({ id, sort_order }) =>
+      supabase.from('villa_slides').update({ sort_order }).eq('id', id)
+    )
+  );
+  revalidatePath(`/${slug}`);
+}
+
+export async function saveVillaStory(formData: FormData) {
+  const supabase = createAdminClient();
+  const slug = formData.get('slug') as string;
+
+  const { error } = await supabase.from('properties').update({
+    villa_story_eyebrow: formData.get('villa_story_eyebrow') as string,
+    villa_story_text:    formData.get('villa_story_text') as string,
+  }).eq('id', formData.get('property_id') as string);
+
+  revalidatePath(`/${slug}`);
+  if (error) redirect(`/admin?slug=${slug}&error=${encodeURIComponent(error.message)}`);
+  else redirect(`/admin?slug=${slug}&saved=1`);
+}
