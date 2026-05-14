@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { saveChanges } from './actions';
 import { LocationSelect } from './LocationSelect';
@@ -5,6 +6,7 @@ import { HouseRulesManager } from './HouseRulesManager';
 import { VillaSlidesManager } from './VillaSlidesManager';
 import { FaqManager } from './FaqManager';
 import { CollapsibleCard } from './CollapsibleCard';
+import { AdminToast } from './AdminToast';
 import './admin.css';
 
 interface PageProps {
@@ -88,23 +90,9 @@ export default async function AdminPage({ searchParams }: PageProps) {
       {/* Body */}
       <main className="admin-body">
 
-        {params.saved && (
-          <div className="admin-toast admin-toast--success">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20 6 9 17l-5-5"/>
-            </svg>
-            Salvo com sucesso — o site já foi atualizado.
-          </div>
-        )}
-
-        {params.error && (
-          <div className="admin-toast admin-toast--error">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-            </svg>
-            {params.error}
-          </div>
-        )}
+        <Suspense>
+          <AdminToast />
+        </Suspense>
 
         <div className="admin-section">
           <h2 className="admin-section__title">Informações essenciais</h2>

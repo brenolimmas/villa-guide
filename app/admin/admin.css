@@ -96,35 +96,72 @@
   padding: 36px 24px 80px;
 }
 
-/* ── Toast ─────────────────────────────────── */
-.admin-toast {
+/* ── Toast flutuante ─────────────────────────── */
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(-16px) scale(0.95); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0)     scale(1);    }
+}
+@keyframes toast-out {
+  from { opacity: 1; transform: translateX(-50%) translateY(0)     scale(1);    }
+  to   { opacity: 0; transform: translateX(-50%) translateY(-10px) scale(0.96); }
+}
+
+.admin-toast-float {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  z-index: 9999;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 13px 16px;
-  border-radius: var(--r-md);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-  margin-bottom: 24px;
+  padding: 13px 16px 13px 14px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 500;
+  min-width: 280px;
+  max-width: 440px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06);
+  animation: toast-in 0.32s cubic-bezier(0.34, 1.4, 0.64, 1) forwards;
 }
-
-.admin-toast--success {
-  background: var(--green-light);
-  color: #2a5010;
-  border: 1px solid #c4dfa8;
+.admin-toast-float--exit {
+  animation: toast-out 0.28s ease forwards;
 }
-
-.admin-toast--error {
-  background: #fff0f0;
+.admin-toast-float--success {
+  background: #fff;
+  color: #1f4a08;
+  border: 1px solid #bfddaa;
+}
+.admin-toast-float--error {
+  background: #fff;
   color: #b91c1c;
   border: 1px solid #fecaca;
 }
-
-.admin-toast svg {
-  width: 16px;
-  height: 16px;
+.admin-toast-float__icon {
+  display: flex;
   flex-shrink: 0;
+  width: 18px;
+  height: 18px;
 }
+.admin-toast-float--success .admin-toast-float__icon { color: #3d7a12; }
+.admin-toast-float--error   .admin-toast-float__icon { color: #dc2626; }
+.admin-toast-float__icon svg { width: 18px; height: 18px; }
+.admin-toast-float__msg  { flex: 1; line-height: 1.4; }
+.admin-toast-float__close {
+  display: flex;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  opacity: 0.45;
+  border-radius: 4px;
+  transition: opacity 0.15s;
+}
+.admin-toast-float__close:hover { opacity: 0.85; }
+.admin-toast-float__close svg   { width: 14px; height: 14px; }
 
 /* ── Sections ────────────────────────────────── */
 .admin-section {
